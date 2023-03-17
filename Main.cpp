@@ -5,6 +5,8 @@
 #include <windows.h>
 #include "resource.h"
 
+HINSTANCE hinstance_app;
+
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
 void Game_Main();
@@ -14,15 +16,17 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
 
     // Register the window class.
     const wchar_t CLASS_NAME[] = L"Sample Window Class";
+    hinstance_app = hInstance;
 
     WNDCLASS wc = { };
 
     wc.lpfnWndProc = WindowProc;
     wc.hInstance = hInstance;
     wc.lpszClassName = CLASS_NAME;
-
+    
     wc.hIcon = LoadIconA(hInstance, MAKEINTRESOURCEA(IDI_ICON1));
     wc.hCursor = LoadCursor(hInstance, MAKEINTRESOURCE(IDC_CURSOR1));
+    //wc.lpszMenuName = MAKEINTRESOURCE(IDR_MENU1);
 
     RegisterClass(&wc);
 
@@ -38,7 +42,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
         100, 100, 400, 400,
 
         NULL,       // Parent window    
-        NULL,       // Menu
+        LoadMenu(hInstance, MAKEINTRESOURCE(IDR_MENU1)),       // Menu
         hInstance,  // Instance handle
         NULL        // Additional application data
     );
@@ -59,6 +63,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
         DispatchMessage(&msg);
     }
 
+
     while (TRUE) {
         if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)){
 
@@ -66,6 +71,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
             if (msg.message == WM_QUIT) break;
             TranslateMessage(&msg);
             DispatchMessage(&msg);
+
         } 
         // Выполнение игры
         Game_Main();
@@ -79,12 +85,25 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
     
     PAINTSTRUCT ps;
     HDC hdc;
-    
-    switch (uMsg)
-    {
+
+    int virtual_code = (int)wParam;
+    int key_state = (int)lParam;
+
+    switch (uMsg) {
+
         case WM_DESTROY:
             PostQuitMessage(0);
+            PlaySound(NULL, hinstance_app, SND_PURGE);
             return 0;
+
+        case WM_KEYDOWN:
+          
+            switch (virtual_code)
+            {
+                case VK_RIGHT: {
+                    PlaySound((LPCTSTR)MAKEINTRESOURCE(IDR_WAVE1), hinstance_app, SND_RESOURCE | SND_ASYNC);
+                }
+            }
 
         case WM_PAINT:{
 
@@ -94,6 +113,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
 
             EndPaint(hwnd, &ps); 
         }
+
         return 0;
 
     }
