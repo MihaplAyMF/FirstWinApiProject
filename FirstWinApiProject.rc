@@ -75,14 +75,6 @@ IDI_ICON1               ICON                    "icon1.ico"
 
 /////////////////////////////////////////////////////////////////////////////
 //
-// WAVE
-//
-
-IDR_WAVE1               WAVE                    "C:\\Users\\Xiaomi\\Desktop\\Hero-Skillet.wav"
-
-
-/////////////////////////////////////////////////////////////////////////////
-//
 // Menu
 //
 
@@ -93,6 +85,7 @@ BEGIN
         MENUITEM "Open",                        ID_FILE_OPEN
         MENUITEM "Close",                       ID_FILE_CLOSE
         MENUITEM "Save",                        ID_FILE_SAVE
+        MENUITEM SEPARATOR
         MENUITEM "Exit",                        ID_FILE_EXIT
     END
     POPUP "Help"
@@ -100,6 +93,14 @@ BEGIN
         MENUITEM "About",                       ID_HELP_ABOUT
     END
 END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// WAVE
+//
+
+IDR_WAVE1               WAVE                    "Song1.wav"
 
 #endif    // Украинский (Украина) resources
 /////////////////////////////////////////////////////////////////////////////

@@ -33,6 +33,9 @@
     <ClInclude Include="resource.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
+    <ClInclude Include="function.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="FirstWinApiProject.rc">
@@ -40,7 +43,7 @@
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
-    <Media Include="C:\Users\Xiaomi\Desktop\Hero-Skillet.wav">
+    <Media Include="Song1.wav">
       <Filter>Файлы ресурсов</Filter>
     </Media>
   </ItemGroup>

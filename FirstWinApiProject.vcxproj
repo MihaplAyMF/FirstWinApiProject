@@ -152,13 +152,14 @@
     <None Include="cursor1.cur" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="function.h" />
     <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="FirstWinApiProject.rc" />
   </ItemGroup>
   <ItemGroup>
-    <Media Include="C:\Users\Xiaomi\Desktop\Hero-Skillet.wav" />
+    <Media Include="Song1.wav" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

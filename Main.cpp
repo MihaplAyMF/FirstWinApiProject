@@ -2,17 +2,18 @@
 #define UNICODE
 #endif 
 
-#include <windows.h>
+#include "function.h"
 #include "resource.h"
 
 HINSTANCE hinstance_app;
 
-LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+//BOOL TextOut(HDC hdc, int nxStart, int nyStart, LPCTSTR lpString, int cbString);
 
-void Game_Main();
+
 
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, int nCmdShow) {
   
+    srand(time(nullptr));
 
     // Register the window class.
     const wchar_t CLASS_NAME[] = L"Sample Window Class";
@@ -54,29 +55,34 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
 
     ShowWindow(hwnd, nCmdShow);
 
-
     MSG msg = { };
 
-    while (GetMessage(&msg, NULL, 0, 0) > 0)
-    {
-        TranslateMessage(&msg);
-        DispatchMessage(&msg);
-    }
-
-
+    RECT rect;
+    HDC hdc = GetDC(hwnd);
+    COLORREF old_fcolor, old_bcolor;
+    
+    GetClientRect(hwnd, &rect);
+    FillRect(hdc, &rect, (HBRUSH)(COLOR_WINDOW + 2)); 
+    SetBkMode(hdc, TRANSPARENT);
     while (TRUE) {
         if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)){
 
-            // Проверка сообщения о выходе
-            if (msg.message == WM_QUIT) break;
+           if (msg.message == WM_QUIT) break;
             TranslateMessage(&msg);
             DispatchMessage(&msg);
 
         } 
-        // Выполнение игры
-        Game_Main();
+      
+      
+        SetTextColor(hdc, RGB(rand() % 256, rand() % 256, rand() % 256));
+        
+        TextOut(hdc, randint(0, 400), randint(0, 400), L"Hello world!", strlen("Hello world!"));
+
+        Sleep(100);
+
     }
 
+    ReleaseDC(hwnd, hdc);
 
     return 0;
 }
@@ -85,41 +91,96 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
     
     PAINTSTRUCT ps;
     HDC hdc;
+    RECT rect;
 
     int virtual_code = (int)wParam;
     int key_state = (int)lParam;
 
+
+    COLORREF old_fcolor, old_bcolor; 
+    int old_tmode;
+
     switch (uMsg) {
+
+
+        case WM_CREATE: 
+            break;
+        case WM_PAINT: 
+                
+
+            GetClientRect(hwnd, &rect); 
+            hdc = GetDC(hwnd); 
+
+           //FillRect(hdc, &rect, (HBRUSH)(COLOR_WINDOW + 2));
+
+            /*old_fcolor = SetTextColor(hdc, RGB(0, 255, 0));
+            old_bcolor = SetBkColor(hdc, RGB(0, 0, 0));
+            old_tmode = SetBkMode(hdc, TRANSPARENT);
+
+            SetTextColor(hdc, RGB(rand() % 256, rand() % 256, rand() % 256));
+            SetBkColor(hdc, RGB(0, 0, 0));
+            SetBkMode(hdc, TRANSPARENT);
+
+            TextOut(hdc, randint(0, 400), randint(0, 400), L"HelloWorld", strlen("HelloWorld"));
+            TextOut(hdc, 50, 80, L"HelloWorld", strlen("HelloWorld"));
+            
+            Sleep(100);*/
+
+            ReleaseDC(hwnd, hdc); 
+
+            ValidateRect(hwnd, &rect); 
+
+ 
+            break;
+
+        case WM_KEYDOWN:
+
+            switch (virtual_code) {
+                case VK_RIGHT:
+                    PlaySound((LPCTSTR)MAKEINTRESOURCE(IDR_WAVE1), hinstance_app, SND_RESOURCE | SND_ASYNC);
+                    break;
+                case VK_LEFT:
+                    PlaySound(NULL, hinstance_app, SND_PURGE);
+                    break;
+                case VK_DOWN:
+                    PostQuitMessage(WM_QUIT);
+                    break;
+            }
+            break;
+
+        case WM_COMMAND: 
+
+            switch (wParam) {
+               case ID_FILE_OPEN:
+                   
+                    break;
+                case ID_FILE_CLOSE:
+
+                    break;
+                case ID_FILE_SAVE:
+
+                    break;
+                case ID_FILE_EXIT:
+                    PostQuitMessage(0);
+                    break;
+                case ID_HELP_ABOUT:
+                    MessageBox(hwnd, L"Menu Sound Demo", L"About Sound Menu", MB_OK | MB_ICONEXCLAMATION);
+
+                    break;
+                default: break;
+            }
+            break;
 
         case WM_DESTROY:
             PostQuitMessage(0);
             PlaySound(NULL, hinstance_app, SND_PURGE);
-            return 0;
-
-        case WM_KEYDOWN:
-          
-            switch (virtual_code)
-            {
-                case VK_RIGHT: {
-                    PlaySound((LPCTSTR)MAKEINTRESOURCE(IDR_WAVE1), hinstance_app, SND_RESOURCE | SND_ASYNC);
-                }
-            }
-
-        case WM_PAINT:{
-
-            hdc = BeginPaint(hwnd, &ps);
-
-            FillRect(hdc, &ps.rcPaint, (HBRUSH)(COLOR_WINDOW + 2));
-
-            EndPaint(hwnd, &ps); 
-        }
-
-        return 0;
-
+            break;
+        default: return DefWindowProc(hwnd, uMsg, wParam, lParam);
     }
-    return DefWindowProc(hwnd, uMsg, wParam, lParam);
-}
-
-void Game_Main(){
 
 }
+
+//void Game_Main(){
+//
+//}
+
