@@ -82,15 +82,22 @@ IDR_MENU1 MENU
 BEGIN
     POPUP "File"
     BEGIN
-        MENUITEM "Open",                        ID_FILE_OPEN
-        MENUITEM "Close",                       ID_FILE_CLOSE
-        MENUITEM "Save",                        ID_FILE_SAVE
-        MENUITEM SEPARATOR
         MENUITEM "Exit",                        ID_FILE_EXIT
     END
     POPUP "Help"
     BEGIN
         MENUITEM "About",                       ID_HELP_ABOUT
+    END
+    POPUP "Color"
+    BEGIN
+        MENUITEM "Red",                         ID_COLOR_RED
+        MENUITEM "Green",                       ID_COLOR_GREEN
+        MENUITEM "Blue",                        ID_COLOR_BLUE
+        MENUITEM "Yellow",                      ID_COLOR_YELLOW
+        MENUITEM "Light blue",                  ID_COLOR_LIGHTBLUE
+        MENUITEM "Purple",                      ID_COLOR_PURPLE
+        MENUITEM "Black",                       ID_COLOR_BLACK
+        MENUITEM "White",                       ID_COLOR_WHITE
     END
 END
 
