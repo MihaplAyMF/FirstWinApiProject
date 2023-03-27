@@ -15,16 +15,17 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
     hInstance_app = hInstance;
     MSG msg = { 0 };
 
-    CreateWindow(
-        L"MainWindowClass",                                 // Window class
-        L"First c++ window",                                // Window text
-        WS_OVERLAPPEDWINDOW | WS_VISIBLE,                   // Window style
-        100, 100, 400, 400,                                 // Size and position
-        NULL,                                               // Parent window
-        NULL,//LoadMenu(hInstance, MAKEINTRESOURCE(IDR_MENU1)),    // Menu
-        hInstance,                                          // Instance handle
-        NULL                                                // Additional application data
-    );
+    if(!(main_window_handle = CreateWindow(
+        L"MainWindowClass",
+        L"Button demo",
+        WS_POPUP | WS_VISIBLE,
+        0, 0,
+        GetSystemMetrics(SM_CXSCREEN),
+        GetSystemMetrics(SM_CYSCREEN),
+        NULL, NULL, hInstance, NULL)))
+        return 0;
+
+    Game_Init();
 
     while (TRUE) {
 
@@ -34,11 +35,13 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
             DispatchMessage(&msg);
         }
 
+        Game_Main();
+
     }
 
-    //DialogBoxParam(hInstance, MAKEINTRESOURCE(IDD_DIALOG1), 0, WindowProc, 0);
+    Game_Shutdown();
 
-    return 0;
+    return (msg.wParam);
 }
 
 WNDCLASS NewWindowClass(HBRUSH BGcolor, HCURSOR Cursor, HINSTANCE hInst, HICON Icon, LPCWSTR Name, WNDPROC Procedure){
@@ -56,24 +59,9 @@ WNDCLASS NewWindowClass(HBRUSH BGcolor, HCURSOR Cursor, HINSTANCE hInst, HICON I
 }
 
 void MainWndAddWudgets(HWND hwnd){
-   
-    oneStatic = CreateWindowA("Static", "Input text", WS_CHILD | WS_VISIBLE | ES_CENTER,
-        150, 17, 100, 24, hwnd, NULL, NULL, NULL
-    );     
 
-    oneEdit = CreateWindowA("Edit", NULL, WS_EX_CLIENTEDGE | WS_BORDER | WS_CHILD | WS_VISIBLE /*| ES_MULTILINE | WS_VSCROLL*/,
-        15, 50, 200/*350*/, 24/*100*/, hwnd, NULL, NULL, NULL
-    ); 
-
-    CreateWindowA("Button", "Clear", WS_VISIBLE | WS_CHILD | ES_CENTER,
-        15, 85, 100, 24, hwnd, (HMENU)ON_CLEAR_FIELD, NULL, NULL
-    );
-
-    CreateWindowA("Button", "Read", WS_VISIBLE | WS_CHILD | ES_CENTER,
-        15, 15, 100, 24, hwnd, (HMENU)ON_READ_FIELD, NULL, NULL
-    );
-
-
+    
+    // тут я буду створювати різні віджети якщо треба буде
 
 }
 
@@ -85,57 +73,58 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
 
     HPEN pen;
     HBRUSH brush;
-
-    int buttons = (int)wParam;
-    int virtual_code = (int)wParam;
-
-    int mouse_x = (int)LOWORD(lParam);
-    int mouse_y = (int)HIWORD(lParam);
-
+    
     switch (uMsg) {
+
         case WM_CREATE:
+
             hdc = GetDC(hwnd);
-            GetClientRect(hwnd, &rect);
-            //SetBkColor(hdc, RGB(255, 0, 0));
-            MainWndAddWudgets(hwnd);
+            GetClientRect(hwnd, &rect); 
+            MainWndAddWudgets(hwnd); // створюємо віджети
             ReleaseDC(hwnd, hdc);
             ValidateRect(hwnd, &rect);
-
             break;
+
         case WM_COMMAND:
+
+            // тут можна обробляти параметри меню, кнопок і можливо ще чогось
+
             switch (wParam) {
-               /* case ID_FILE_EXIT:
+                case ID_FILE_EXIT:
+
                     PostQuitMessage(0);
                     break;
+                
                 case ID_HELP_ABOUT:
+                
                     MessageBox(hwnd, L"It's simple paint", L"About program", MB_OK );
-                    break;*/
-                case ON_CLEAR_FIELD:
-                    SetWindowTextA(oneEdit, "");
                     break;
-                case ON_READ_FIELD:
-                    GetWindowTextA(oneEdit, buffer, TEXT_BUFFER);
-                    SetWindowTextA(oneStatic, buffer);
-                    break;
+                
                 default: break;
             }
             break;
-       /* case WM_CTLCOLORSTATIC: {
-            HDC hdcStatic = (HDC)wParam;
-            SetBkMode(hdcStatic, RGB(0, 0, 0));
-            return (LRESULT)GetStockObject(NULL_BRUSH);
+
+        case WM_DESTROY: // вихід з програми
         
-        }*/
-        case WM_CTLCOLORSTATIC:
-            SetBkColor((HDC)wParam, RGB(100, 100, 100));
-            return (LRESULT)CreateSolidBrush(RGB(100, 100, 100));
-            break;
-        case WM_DESTROY:
-        
-            PostQuitMessage(0);
+            PostQuitMessage(0); 
             break;
         
         default: return DefWindowProc(hwnd, uMsg, wParam, lParam);
     }
 }
 
+int Game_Init(void* parms, int num_parms){
+    return 0;
+}
+
+int Game_Main(void* parms, int num_parms){
+
+    if (KEYDOWN(VK_ESCAPE))
+        SendMessage(main_window_handle, WM_CLOSE, 0, 0);
+
+    return 0;
+}
+
+int Game_Shutdown(void* parms, int num_parms){
+    return 0;
+}
