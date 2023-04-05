@@ -10,13 +10,11 @@
 #define IDC_CHECK1                      1003
 #define IDC_CHECK2                      1004
 #define IDC_EDIT2                       1005
-#define ID_FILE_OPEN                    40001
-#define ID_FILE_CLOSE                   40002
-#define ID_FILE_SAVE                    40003
+#define ID_FILE_OPEN                    4000
+#define ID_FILE_SAVE                    4001
+#define ID_FILE_CLOSE                   4002
 #define ID_HELP_ABOUT                   40005
 #define ID_FILE_EXIT                    40009
-#define ID_FILE_OPEN40020               40020
-#define ID_FILE_SAVE40021               40021
 
 // Next default values for new objects
 // 

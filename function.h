@@ -13,6 +13,8 @@
 #define ON_READ_FIELD 2
 #define ON_CLEAR_FIELD 3
 #define TEXT_BUFFER 10
+#define BUTTON_ONE_CLICK 5
+#define BUTTON_TWO_CLICK 6
 
 #define KEYDOWN(vk_code) \
  ((GetAsyncKeyState(vk_code) & 0x8000) ? 1 : 0)
@@ -22,10 +24,17 @@
 char buffer[TEXT_BUFFER];
 HINSTANCE hInstance_app; 
 HWND main_window_handle; // дескриптор вікна
+HWND hEditOne, hStaticOne;
+
+char fileName[260] = {0};
+OPENFILENAMEA ofn = {0};
 
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 WNDCLASS NewWindowClass(HBRUSH BGcolor, HCURSOR Cursor, HINSTANCE hInst, HICON Icon, LPCWSTR Name, WNDPROC Procedure);
 void MainWndAddWudgets(HWND hwnd);
+void SetOpenFileParams(HWND hWnd);
+void SaveData(LPCSTR path);
+void LoadData(LPCSTR path);
 
 int Game_Init(void* parms = NULL, int num_parms = 0);
 int Game_Main(void* parms = NULL, int num_parms = 0);
