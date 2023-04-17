@@ -3,43 +3,19 @@
 #pragma warning(disable : 4996)
 
 #include <windows.h>
-#include <iostream>
-#include <stdio.h>
 #include <ctime>
+#include <stdio.h>
 
-#define TIMER_ID_1SEC 1
-#define WINDOW_WIDTH 400
-#define WINDOW_HEIGHT 400
-#define ON_READ_FIELD 2
-#define ON_CLEAR_FIELD 3
-#define TEXT_BUFFER 10
+#define TIMER_ID_ONE 1
 #define BUTTON_ONE_CLICK 5
-#define BUTTON_TWO_CLICK 6
 
-#define KEYDOWN(vk_code) \
- ((GetAsyncKeyState(vk_code) & 0x8000) ? 1 : 0)
-#define KEYUP(vk_code) \
- ((GetAsyncKeyState(vk_code) & 0x8000) ? 0 : 1)
+HINSTANCE hInstance_app;
+HWND globalHwnd, hButClick, hText;
+WNDPROC original_procedure;
+UINT_PTR timerId;
+DWORD timerInterval, currentTime, startTime;
+bool toggle = false, state = true;
 
-char buffer[TEXT_BUFFER];
-HINSTANCE hInstance_app; 
-HWND main_window_handle; // дескриптор вікна
-HWND hEditOne, hStaticOne;
-
-char fileName[260] = {0};
-OPENFILENAMEA ofn = {0};
-
-LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
-WNDCLASS NewWindowClass(HBRUSH BGcolor, HCURSOR Cursor, HINSTANCE hInst, HICON Icon, LPCWSTR Name, WNDPROC Procedure);
+LRESULT CALLBACK WindowProc(HWND, UINT, WPARAM, LPARAM);
+LRESULT CALLBACK ButtonProc(HWND, UINT, WPARAM, LPARAM);
 void MainWndAddWudgets(HWND hwnd);
-void SetOpenFileParams(HWND hWnd);
-void SaveData(LPCSTR path);
-void LoadData(LPCSTR path);
-
-int Game_Init(void* parms = NULL, int num_parms = 0);
-int Game_Main(void* parms = NULL, int num_parms = 0);
-int Game_Shutdown(void* parms = NULL, int num_parms = 0);
-
-int randint(int start, int end) {
-	return rand() % end + start;
-}

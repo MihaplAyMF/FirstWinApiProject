@@ -3,30 +3,49 @@
 #endif 
 
 #include "function.h"
-#include "resource.h"
 
-int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, int nCmdShow) {
+struct ButtonCoordinates {
+    int x;
+    int y;
+};
 
-    WNDCLASS wc = NewWindowClass((HBRUSH)(COLOR_WINDOW + 2), LoadCursor(hInstance, MAKEINTRESOURCE(IDC_CURSOR1)), hInstance,
-                                 LoadIconA(hInstance, MAKEINTRESOURCEA(IDI_ICON1)), L"MainWindowClass", WindowProc);
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
 
-    if(!RegisterClass(&wc)) {return -1;}
+    WNDCLASS wc;
 
+    wc.style = NULL;
+    wc.hbrBackground = CreateSolidBrush(RGB(100, 100, 100));
+    wc.hCursor = LoadCursor(NULL, 0);
+    wc.hInstance = hInstance;
+    wc.hIcon = LoadIconA(hInstance, 0);
+    wc.cbClsExtra = 0;
+    wc.cbWndExtra = 0;
+    wc.lpszClassName = L"MainWindowClass";
+    wc.lpfnWndProc = WindowProc;
+    wc.lpszMenuName = 0;
+
+    MSG msg;
+    timerInterval = 1000;
     hInstance_app = hInstance;
-    MSG msg = { 0 };
+    srand(time(nullptr));
 
-    if(!(main_window_handle = CreateWindow(
+    RegisterClass(&wc);
+    globalHwnd = CreateWindowEx(
+        0,
         L"MainWindowClass",
-        L"Write and save txt files",
+        L"Button Subclassing",
         WS_OVERLAPPEDWINDOW | WS_VISIBLE,
-        100, 
+        100,
         100,
         400,
         400,
-        NULL, LoadMenu(hInstance, MAKEINTRESOURCE(IDR_MENU1)), hInstance, NULL)))
-        return 0;
+        NULL,
+        NULL,
+        hInstance_app,
+        NULL);
 
-    Game_Init();
+    ShowWindow(globalHwnd, 1);
+    UpdateWindow(globalHwnd);
 
     while (TRUE) {
 
@@ -36,177 +55,115 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
             DispatchMessage(&msg);
         }
 
-        Game_Main();
-
     }
-
-    Game_Shutdown();
-
-    return (msg.wParam);
+    return msg.wParam;
 }
 
-WNDCLASS NewWindowClass(HBRUSH BGcolor, HCURSOR Cursor, HINSTANCE hInst, HICON Icon, LPCWSTR Name, WNDPROC Procedure){
-    
-    WNDCLASS wc = {};
+void MainWndAddWudgets(HWND hwnd) {
 
-    wc.hbrBackground = BGcolor;
-    wc.hCursor = Cursor;
-    wc.hInstance = hInst;
-    wc.hIcon = Icon;
-    wc.lpszClassName = Name;
-    wc.lpfnWndProc = WindowProc;
-
-    return wc;
-}
-
-void MainWndAddWudgets(HWND hwnd){
-
-    CreateWindowA("Button", "Save", WS_VISIBLE | WS_CHILD | ES_CENTER, 10, 10, 100, 30, hwnd, (HMENU)BUTTON_ONE_CLICK, NULL, NULL);
-    CreateWindowA("Button", "Load", WS_VISIBLE | WS_CHILD | ES_CENTER, 150, 10, 100, 30, hwnd, (HMENU)BUTTON_TWO_CLICK, NULL, NULL);
-
-
-    hEditOne = CreateWindowA("Edit", " ", WS_VISIBLE | WS_CHILD | ES_MULTILINE | WS_VSCROLL, 10, 50, 300, 130, hwnd, NULL, NULL, NULL);
-    
-    // тут я буду створювати різні віджети якщо треба буде
+    hButClick = CreateWindowA("button", "1000", WS_CHILD | WS_VISIBLE, rand() % 320, rand() % 300, 50, 25, hwnd, (HMENU)BUTTON_ONE_CLICK, hInstance_app, NULL);
+   // hText = CreateWindowA("Static", "Click", WS_VISIBLE | WS_CHILD | ES_CENTER, 20, 20, 50, 50, hwnd, NULL, NULL, NULL);
+    original_procedure = (WNDPROC)SetWindowLong(hButClick, GWL_WNDPROC, (long)ButtonProc);
 
 }
 
-LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
-    
-    PAINTSTRUCT ps;
-    HDC hdc;  
+LRESULT CALLBACK WindowProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) {
+
     RECT rect;
+    ButtonCoordinates buttonCoords;
 
-    HPEN pen;
-    HBRUSH brush;
-    
-    switch (uMsg) {
+    switch (Message) {
 
         case WM_CREATE:
 
-            hdc = GetDC(hwnd);
-            GetClientRect(hwnd, &rect); 
-            MainWndAddWudgets(hwnd); // створюємо віджети
-            SetOpenFileParams(hwnd);
-            ReleaseDC(hwnd, hdc);
-            ValidateRect(hwnd, &rect);
+            MainWndAddWudgets(hwnd);
             break;
 
-        case WM_COMMAND:
 
-            // тут можна обробляти параметри меню, кнопок і можливо ще чогось
-
+        case WM_TIMER: 
             switch (wParam) {
+                case TIMER_ID_ONE: {
+                 
+                    POINT cursorPos;
+                    GetCursorPos(&cursorPos);
+                    ScreenToClient(globalHwnd, &cursorPos);
 
-                case ID_FILE_EXIT:
+                    GetWindowRect(hButClick, &rect);
+                    buttonCoords.x = rect.right - rect.left;
+                    buttonCoords.y = rect.bottom - rect.top;
+                    ScreenToClient(globalHwnd, &cursorPos);
+                    int newX = rand() % 320;
+                    int newY = rand() % 300;
+                    MoveWindow(hButClick, newX, newY, buttonCoords.x, buttonCoords.y, TRUE);
 
-                    PostQuitMessage(0);
-                    break;
-                
-                case BUTTON_ONE_CLICK:
-                    if (GetSaveFileNameA(&ofn)) { SaveData(fileName); }
-                    break;
-
-                case BUTTON_TWO_CLICK:
-                    if (GetOpenFileNameA(&ofn)) { LoadData(fileName); }
-                    break;
-                
-                case ID_FILE_SAVE:
-
-                    if (GetSaveFileNameA(&ofn)) { SaveData(fileName); }
-                    break;
-
-                case ID_FILE_OPEN:
-
-                    if (GetOpenFileNameA(&ofn)) { LoadData(fileName); }
-                    break;
-
-                case ID_FILE_CLOSE:
-
-                    PostQuitMessage(0);
-                    break;
-                
-                case ID_HELP_ABOUT:
-                    MessageBox(hwnd, L"It's simple paint", L"About program", MB_OK );
-                    break;
-                
+                    KillTimer(globalHwnd, TIMER_ID_ONE);
+                } break;
+               
                 default: break;
+            } 
+
+            break;
+
+        case WM_MOUSEMOVE:
+
+            if (toggle == true) {
+
+                toggle = false;
+               
             }
             break;
 
-        case WM_CTLCOLORSTATIC:
-            SetBkColor((HDC)wParam, RGB(100, 100, 100));
-            return (LRESULT) CreateSolidBrush(RGB(100, 100, 100));
+        case WM_DESTROY:
+
+            KillTimer(globalHwnd, timerId);
+            PostQuitMessage(0);
             break;
 
-        case WM_DESTROY: // вихід з програми
-        
-            PostQuitMessage(0); 
-            break;
-        
-        default: return DefWindowProc(hwnd, uMsg, wParam, lParam);
+        default:
+            return DefWindowProc(hwnd, Message, wParam, lParam);
     }
 }
 
+LRESULT CALLBACK ButtonProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) {
+  
+    RECT rect;
+    ButtonCoordinates buttonCoords;
 
-void SaveData(LPCSTR path){
-    
-    HANDLE FileToSave = CreateFileA(path, GENERIC_WRITE, NULL, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+    switch (Message) {
 
-    int saveLength = GetWindowTextLength(hEditOne) + 1;
-    char* data = new char[saveLength];
-    saveLength = GetWindowTextA(hEditOne, data, saveLength);
+        case WM_LBUTTONDOWN: {
 
-    DWORD bytesIterated;
-
-    WriteFile(FileToSave, data, saveLength, &bytesIterated, NULL);
-
-    CloseHandle(FileToSave);
-    delete[] data;
-}
+            POINT cursorPos;
+            GetCursorPos(&cursorPos);
+            ScreenToClient(globalHwnd, &cursorPos);
  
-void LoadData(LPCSTR path){
-    HANDLE FileToLoad = CreateFileA(path, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+            GetWindowRect(hButClick, &rect);
+            buttonCoords.x = rect.right - rect.left;
+            buttonCoords.y = rect.bottom - rect.top;
+            ScreenToClient(globalHwnd, &cursorPos);
+            int newX = rand() % 320;
+            int newY = rand() % 300;
+            MoveWindow(hButClick, newX, newY, buttonCoords.x, buttonCoords.y, TRUE);
 
-    DWORD fileSize = GetFileSize(FileToLoad, NULL);
-    char* data = new char[fileSize + 1];
+            timerInterval /= 2.0;
 
-    DWORD bytesRead;
-    ReadFile(FileToLoad, data, fileSize, &bytesRead, NULL);
+            char buf[10]; // буфер для зберігання тексту
+            sprintf(buf, "%d", timerInterval); // перетворення змінної на рядок
+            SetWindowTextA(hButClick, buf);
 
-    data[fileSize] = '\0';
-    SetWindowTextA(hEditOne, data);
-
-    CloseHandle(FileToLoad);
-    delete[] data;
-     
-}
-
-void SetOpenFileParams(HWND hWnd) {
+            KillTimer(globalHwnd, TIMER_ID_ONE);
+            break; }
    
-    ZeroMemory(&ofn, sizeof(ofn));
+        case WM_MOUSEMOVE:
 
-    ofn.lStructSize = sizeof(ofn);
-    ofn.hwndOwner = hWnd;
-    ofn.lpstrFilter = "Text Files (*.txt)\0*.txt\0All Files (*.*)\0*.*\0";
-    ofn.lpstrFile = fileName;
-    ofn.nMaxFile = MAX_PATH;
-    ofn.Flags = OFN_EXPLORER | OFN_PATHMUSTEXIST | OFN_OVERWRITEPROMPT;
-    ofn.lpstrDefExt = "txt";
-}
+            if (toggle == false) {
 
-int Game_Init(void* parms, int num_parms){
-    return 0;
-}
+                toggle = true;
+                startTime = GetTickCount();
+                timerId = SetTimer(globalHwnd, TIMER_ID_ONE, timerInterval, NULL);
+            }
+            break;
 
-int Game_Main(void* parms, int num_parms){
-
-    if (KEYDOWN(VK_ESCAPE))
-        SendMessage(main_window_handle, WM_CLOSE, 0, 0);
-
-    return 0;
-}
-
-int Game_Shutdown(void* parms, int num_parms){
-    return 0;
+    }
+    return CallWindowProc(original_procedure, hwnd, Message, wParam, lParam);
 }
