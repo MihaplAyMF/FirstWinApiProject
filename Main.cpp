@@ -14,16 +14,29 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
 
     hInstance_app = hInstance;
     MSG msg = { 0 };
+    srand(time(nullptr));
 
-    if(!(main_window_handle = CreateWindow(
-        L"MainWindowClass",
-        L"Button demo",
-        WS_POPUP | WS_VISIBLE,
-        0, 0,
-        GetSystemMetrics(SM_CXSCREEN),
-        GetSystemMetrics(SM_CYSCREEN),
-        NULL, NULL, hInstance, NULL)))
-        return 0;
+    int sizeX, sizeY;
+
+    for (int i = 0; i < 200; i++) {
+
+        sizeX = rand() % GetSystemMetrics(SM_CXSCREEN);
+        sizeY = rand() % GetSystemMetrics(SM_CXSCREEN);
+
+        if (!(main_window_handle = CreateWindow(
+            L"MainWindowClass",
+            L"Button demo",
+            WS_OVERLAPPEDWINDOW | WS_VISIBLE,
+            sizeX - 200,
+            sizeY - 200,
+            sizeX,
+            sizeY,
+            NULL, NULL, hInstance, NULL)))
+            return 0;
+        Sleep(100);
+    }
+
+   
 
     Game_Init();
 
