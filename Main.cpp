@@ -3,6 +3,7 @@
 #endif 
 
 #include "function.h"
+#include "resource.h"
 
 struct ButtonCoordinates {
     int x;
@@ -15,14 +16,16 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
     wc.style = NULL;
     wc.hbrBackground = CreateSolidBrush(RGB(100, 100, 100));
-    wc.hCursor = LoadCursor(NULL, 0);
+    wc.hCursor = LoadCursor(hInstance, MAKEINTRESOURCE(IDC_CURSOR1));
     wc.hInstance = hInstance;
-    wc.hIcon = LoadIconA(hInstance, 0);
+    wc.hIcon = LoadIconA(hInstance, MAKEINTRESOURCEA(IDI_ICON1));
     wc.cbClsExtra = 0;
     wc.cbWndExtra = 0;
     wc.lpszClassName = L"MainWindowClass";
     wc.lpfnWndProc = WindowProc;
     wc.lpszMenuName = 0;
+
+    // I want to figure in out git
 
     MSG msg;
     timerInterval = 1000;
@@ -33,7 +36,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
     globalHwnd = CreateWindowEx(
         0,
         L"MainWindowClass",
-        L"Button Subclassing",
+        L"Перевір свою реакцію",
         WS_OVERLAPPEDWINDOW | WS_VISIBLE,
         100,
         100,
@@ -54,7 +57,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
             TranslateMessage(&msg);
             DispatchMessage(&msg);
         }
-
+        if (int(timerInterval) == 3){
+            MessageBoxA(globalHwnd, "У вас відмінна реакція!!", "Вітаю", MB_OK );
+            PostQuitMessage(0);
+        }
     }
     return msg.wParam;
 }
@@ -62,7 +68,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 void MainWndAddWudgets(HWND hwnd) {
 
     hButClick = CreateWindowA("button", "1000", WS_CHILD | WS_VISIBLE, rand() % 320, rand() % 300, 50, 25, hwnd, (HMENU)BUTTON_ONE_CLICK, hInstance_app, NULL);
-   // hText = CreateWindowA("Static", "Click", WS_VISIBLE | WS_CHILD | ES_CENTER, 20, 20, 50, 50, hwnd, NULL, NULL, NULL);
     original_procedure = (WNDPROC)SetWindowLong(hButClick, GWL_WNDPROC, (long)ButtonProc);
 
 }
